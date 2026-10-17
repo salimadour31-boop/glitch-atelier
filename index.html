@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Glitch Atelier — glitch art & pixel sorting</title>
+  <meta name="description" content="Studio libre de glitch art et de pixel sorting dans le navigateur : pile d’effets non destructive, graine reproductible, export PNG / JPG / WebM. Aucune image n’est envoyée.">
+  <meta name="theme-color" content="#0d0b16">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <a class="skip" href="#stage" data-i18n="skip">Aller à l’aperçu</a>
+  <header class="top">
+    <div class="brand">
+      <img src="icons/icon.svg" alt="" width="36" height="36">
+      <div>
+        <h1>Glitch <span>Atelier</span></h1>
+        <p class="tagline" data-i18n="tagline">Glitch art & pixel sorting — tout reste sur votre appareil</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <label class="inline"><span data-i18n="language">Langue</span>
+        <select id="lang">
+          <option value="fr">Français</option>
+          <option value="en">English</option>
+          <option value="kab">Taqbaylit</option>
+        </select>
+      </label>
+      <label class="inline check" id="tfngWrap" hidden><input type="checkbox" id="tfng"> <span data-i18n="tifinagh">Tifinagh</span> <span aria-hidden="true">ⵜⵉⴼⵉⵏⴰⵖ</span></label>
+      <button type="button" class="btn ghost" id="helpBtn" aria-haspopup="dialog"><span aria-hidden="true">?</span> <span data-i18n="help">Aide</span></button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="stage-col" aria-labelledby="stageTitle">
+      <h2 id="stageTitle" class="sr-only" data-i18n="stageLabel">Aperçu de l’image glitchée</h2>
+      <div class="toolbar" role="toolbar">
+        <button type="button" class="btn primary" id="openBtn" data-i18n-title="openTitle"><span aria-hidden="true">⬆</span> <span data-i18n="open">Ouvrir</span></button>
+        <input type="file" id="file" accept="image/*" hidden>
+        <button type="button" class="btn" id="demoBtn" data-i18n-title="demoTitle"><span data-i18n="demo">Démo</span></button>
+        <span class="sep" aria-hidden="true"></span>
+        <button type="button" class="btn icon" id="undoBtn" data-i18n-title="undo" data-i18n-aria="undo">↶</button>
+        <button type="button" class="btn icon" id="redoBtn" data-i18n-title="redo" data-i18n-aria="redo">↷</button>
+        <span class="sep" aria-hidden="true"></span>
+        <div class="seg" role="group">
+          <button type="button" class="btn" id="fitBtn" aria-pressed="true" data-i18n-title="fitTitle"><span data-i18n="fit">Ajuster</span></button>
+          <button type="button" class="btn" id="zoomBtn" aria-pressed="false" data-i18n-title="zoomTitle"><span data-i18n="zoom100">100 %</span></button>
+        </div>
+        <button type="button" class="btn" id="cmpBtn" aria-pressed="false" data-i18n-title="compareTitle"><span data-i18n="compare">Avant / après</span></button>
+        <button type="button" class="btn" id="playBtn" aria-pressed="false" data-i18n-title="playTitle"><span aria-hidden="true">▶</span> <span data-i18n="play">Animer</span></button>
+      </div>
+
+      <div class="stage" id="stage" tabindex="-1" data-i18n-aria="stageLabel">
+        <div class="canvas-wrap" id="wrap">
+          <canvas id="out" role="img" data-i18n-aria="stageLabel"></canvas>
+          <canvas id="orig" class="orig" aria-hidden="true"></canvas>
+          <div class="cmp-line" id="cmpLine" aria-hidden="true"><span data-i18n="before">Avant</span><span data-i18n="after">Après</span></div>
+        </div>
+        <div class="drop" id="drop" aria-hidden="true"><span data-i18n="dropNow">Relâchez pour charger l’image</span></div>
+        <div class="busy" id="busy" hidden><span class="spinner" aria-hidden="true"></span><span id="busyText"></span></div>
+      </div>
+      <div class="cmp-row" id="cmpRow" hidden>
+        <label for="cmp" class="sr-only" data-i18n="compareSlider">Position du comparateur</label>
+        <input type="range" id="cmp" min="0" max="100" step="0.5" value="50">
+      </div>
+      <p class="status"><span id="info"></span> <span class="hint" data-i18n="dropHint">Déposez, collez (Ctrl+V) ou ouvrez une image</span></p>
+    </section>
+
+    <aside class="panel">
+      <section class="card" aria-labelledby="hPresets">
+        <div class="card-head">
+          <h2 id="hPresets" data-i18n="presets">Préréglages</h2>
+          <button type="button" class="btn small" id="surpriseBtn" data-i18n-title="surpriseTitle"><span aria-hidden="true">✦</span> <span data-i18n="surprise">Surprise</span></button>
+        </div>
+        <div class="presets" id="presets"></div>
+      </section>
+
+      <section class="card" aria-labelledby="hSeed">
+        <h2 id="hSeed" data-i18n="seedTitle">Hasard</h2>
+        <div class="row">
+          <label class="grow"><span data-i18n="seed">Graine</span>
+            <input type="number" id="seed" min="0" max="4294967295" step="1" inputmode="numeric"></label>
+          <button type="button" class="btn icon big" id="rerollBtn" data-i18n-title="reroll" data-i18n-aria="reroll">🎲</button>
+          <label class="grow"><span data-i18n="previewSize">Taille d’aperçu</span>
+            <select id="previewSize"><option value="640">640 px</option><option value="1000" selected>1000 px</option><option value="1400">1400 px</option></select></label>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="hStack">
+        <div class="card-head">
+          <h2 id="hStack" data-i18n="stackTitle">Pile d’effets</h2>
+          <button type="button" class="btn small ghost" id="clearBtn"><span data-i18n="clear">Tout retirer</span></button>
+        </div>
+        <div class="row add-row">
+          <label class="grow"><span class="sr-only" data-i18n="addEffect">Effet à ajouter</span><select id="addType"></select></label>
+          <button type="button" class="btn primary" id="addBtn">＋ <span data-i18n="add">Ajouter</span></button>
+        </div>
+        <p class="empty" id="empty" data-i18n="emptyStack" hidden>Aucun effet.</p>
+        <ol class="layers" id="layers"></ol>
+      </section>
+
+      <section class="card" aria-labelledby="hExport">
+        <h2 id="hExport" data-i18n="exportTitle">Exporter</h2>
+        <div class="row wrap">
+          <button type="button" class="btn primary" id="pngBtn"><span data-i18n="exportPng">PNG pleine résolution</span></button>
+          <button type="button" class="btn" id="jpgBtn"><span data-i18n="exportJpg">JPG</span></button>
+          <label class="inline"><span data-i18n="jpgQuality">Qualité JPG</span>
+            <input type="number" id="jpgQ" min="10" max="100" step="1" value="92"></label>
+        </div>
+        <fieldset class="video">
+          <legend data-i18n="video">Boucle vidéo (WebM)</legend>
+          <div class="row wrap">
+            <label><span data-i18n="duration">Durée</span>
+              <select id="vDur"><option value="1">1 s</option><option value="2">2 s</option><option value="3" selected>3 s</option><option value="5">5 s</option><option value="8">8 s</option></select></label>
+            <label><span data-i18n="fps">Images / s</span>
+              <select id="vFps"><option>12</option><option selected>24</option><option>30</option></select></label>
+            <label><span data-i18n="videoSize">Largeur</span>
+              <select id="vSize"><option>480</option><option selected>640</option><option>960</option><option>1280</option></select></label>
+          </div>
+          <label class="check"><input type="checkbox" id="vVary" checked> <span data-i18n="varyRandom">Hasard différent à chaque image</span></label>
+          <button type="button" class="btn" id="webmBtn"><span aria-hidden="true">●</span> <span data-i18n="exportWebm">Enregistrer la boucle WebM</span></button>
+          <p class="note" id="webmNote" hidden data-i18n="webmUnsupported"></p>
+        </fieldset>
+        <fieldset>
+          <legend data-i18n="settings">Réglages</legend>
+          <div class="row wrap">
+            <button type="button" class="btn" id="jsonBtn"><span data-i18n="exportJson">Exporter JSON</span></button>
+            <button type="button" class="btn" id="importBtn"><span data-i18n="importJson">Importer JSON</span></button>
+            <input type="file" id="jsonFile" accept=".json,application/json" hidden>
+            <button type="button" class="btn" id="shareBtn"><span aria-hidden="true">🔗</span> <span data-i18n="shareLink">Copier le lien</span></button>
+          </div>
+          <p class="note" data-i18n="shareNote">Le lien contient la pile d’effets, pas l’image.</p>
+          <input type="text" id="shareOut" class="share-out" readonly hidden aria-label="URL">
+        </fieldset>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="foot">
+    <p><span aria-hidden="true">🔒</span> <span data-i18n="privacy">Vos images ne quittent jamais votre appareil.</span></p>
+    <p><span data-i18n="licence">Logiciel libre, licence MIT</span> · © 2026 Amirouche Amwanes ·
+      <a href="https://github.com/salimadour31-boop/glitch-atelier" rel="noopener"><span data-i18n="source">Code source</span></a></p>
+  </footer>
+
+  <dialog id="help" aria-labelledby="helpTitle">
+    <div class="dlg-head"><h2 id="helpTitle" data-i18n="helpTitle">Aide & raccourcis</h2>
+      <button type="button" class="btn icon" id="helpClose" data-i18n-aria="close" data-i18n-title="close">✕</button></div>
+    <div class="dlg-body" id="helpBody"></div>
+  </dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/effects.js"></script>
+  <script src="js/presets.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

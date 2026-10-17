@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Glitch Atelier">
+  <!-- Original logo: a square frame cut into displaced horizontal slices, with cyan / magenta channel ghosts. -->
+  <rect width="64" height="64" rx="14" fill="#0d0b16"/>
+  <g fill="none" stroke-width="6" stroke-linecap="square">
+    <path d="M44 20H20v24h24V34H33" stroke="#19e3ff" transform="translate(-3 0)" opacity=".85"/>
+    <path d="M44 20H20v24h24V34H33" stroke="#ff2e88" transform="translate(3 0)" opacity=".85"/>
+    <path d="M44 20H20v24h24V34H33" stroke="#f4f1ff"/>
+  </g>
+  <rect x="8" y="27" width="22" height="4" fill="#0d0b16"/>
+  <rect x="34" y="38" width="22" height="3" fill="#0d0b16"/>
+  <rect x="14" y="27" width="20" height="4" fill="#f4f1ff" transform="translate(6 0)"/>
+</svg>
